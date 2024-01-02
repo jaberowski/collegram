@@ -1,0 +1,16 @@
+### login 
+
+POST  http://localhost:3000/login 
+Content-Type: application/json
+
+{"identifier":"df" , "password" :"621377jF" }
+
+
+### signup 
+
+POST  http://localhost:3000/signup 
+Content-Type: application/json
+
+{"username":"sdfasdaf" , "password":"sdfadsfa8d28as5f8" , "email":"shdfa@gmail.com" }
+
+

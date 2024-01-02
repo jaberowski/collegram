@@ -12,7 +12,7 @@ export const signinDto = z.object({
 export const signupDto = z.object({
   username: zodUsername,
   email: z.string().refine(isEmail),
-  passwords: zodPassword,
+  password: zodPassword,
 });
 
 export const forgotPassDto = z.object({
