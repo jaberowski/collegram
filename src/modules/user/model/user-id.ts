@@ -10,3 +10,14 @@ export const isUserId = (value: string): value is UserId => {
 };
 
 export const zodProgramId = z.string().refine(isUserId);
+
+export interface ExistingUserId {
+  status: "existing";
+  data: UserId;
+}
+
+export interface NoSuchUserId {
+  status: "not-existed";
+}
+
+export type CheckedUserId = ExistingUserId | NoSuchUserId;

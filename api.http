@@ -3,7 +3,7 @@
 POST  http://localhost:3000/login 
 Content-Type: application/json
 
-{"identifier":"df" , "password" :"621377jF" }
+{"identifier":"j.fathi1998@gmail.com" , "password" :"Test1234" }
 
 
 ### signup 
@@ -12,5 +12,21 @@ POST  http://localhost:3000/signup
 Content-Type: application/json
 
 {"username":"sdfasdaf" , "password":"sdfadsfa8d28as5f8" , "email":"shdfa@gmail.com" }
+
+
+### forgot 
+
+POST  http://localhost:3000/forgot 
+Content-Type: application/json
+
+{"identifier":"j.fathi1998@gmail.com"}
+
+
+### recover 
+
+POST  http://localhost:3000/recover 
+Content-Type: application/json
+
+{"token":"d0c3eac5-5d02-4cc8-912d-3fba512c80e5" , "password":"Test1234"}
 
 

@@ -6,6 +6,9 @@ import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
 import { IUserRepository, UserRepository } from "./user.repository";
 import { HttpError } from "../../utility/http-error";
+import { v4 } from "uuid";
+import { makeUUID } from "../../data/UUID";
+import { UUID } from "../../data/UUID";
 
 export class UserService {
   constructor(private UserRepo: IUserRepository) {}
@@ -50,9 +53,33 @@ export class UserService {
     return user;
   }
 
-  async forgot(identifier: Identifier) {}
+  async forgot(identifier: Identifier) {
+    const user = isEmail(identifier)
+      ? await this.UserRepo.findByEmail(identifier)
+      : await this.UserRepo.findByUsername(identifier);
 
-  async recoverPassword(token: string, newPass: Password) {}
+    if (!user) {
+      throw new HttpError(404, "no such a user");
+    }
+
+    const token = makeUUID();
+
+    const tokenItem = await this.UserRepo.saveResetPasswordTokenObject(
+      user.id,
+      user.id,
+      Date.now() + 360000
+    );
+    return tokenItem;
+  }
+
+  async recoverPassword(token: UUID, newPass: Password) {
+    const tokenObject = await this.UserRepo.getResetPasswordTokenObject(token);
+    if (!tokenObject) {
+      throw new HttpError(404, "niste kaka");
+    }
+
+    return this.UserRepo.resetPassword(tokenObject.userId, newPass);
+  }
 }
 
 const userRepo = new UserRepository();

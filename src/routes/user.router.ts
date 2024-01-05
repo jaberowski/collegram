@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { signinDto, signupDto } from "../modules/user/dto/authentication.dto";
+import {
+  forgotPassDto,
+  recoverPassDto,
+  signinDto,
+  signupDto,
+} from "../modules/user/dto/authentication.dto";
 import { isIdentifier } from "../modules/user/model/identifier";
 import { UserService } from "../modules/user/user.service";
 import { handleExpress } from "../utility/handle-express";
@@ -15,5 +20,16 @@ export const makeUserRouter = (userService: UserService) => {
     const { username, email, password } = signupDto.parse(req.body);
     handleExpress(res, () => userService.signup({ username, email, password }));
   });
+
+  userRouter.post("/forgot", async (req, res) => {
+    const { identifier } = forgotPassDto.parse(req.body);
+    handleExpress(res, () => userService.forgot(identifier));
+  });
+
+  userRouter.post("/recover", async (req, res) => {
+    const { token, password } = recoverPassDto.parse(req.body);
+    handleExpress(res, () => userService.recoverPassword(token, password));
+  });
+
   return userRouter;
 };
