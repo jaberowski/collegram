@@ -5,10 +5,12 @@ import { Password } from "./model/password";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
 import { IUserRepository, UserRepository } from "./user.repository";
-import { HttpError } from "../../utility/http-error";
+import { ForbiddenError, HttpError } from "../../utility/http-error";
 import { v4 } from "uuid";
 import { makeUUID } from "../../data/UUID";
 import { UUID } from "../../data/UUID";
+import { User } from "./model/user";
+import { makeToken } from "../token/token.helper";
 
 export class UserService {
   constructor(private UserRepo: IUserRepository) {}
@@ -49,8 +51,12 @@ export class UserService {
     if (password !== user.password) {
       throw new HttpError(404, "username or password is incorrect");
     }
-
-    return user;
+    try {
+      const token = makeToken(user.id);
+      return { token: `Bearer ${token}` };
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async forgot(identifier: Identifier) {
@@ -69,6 +75,7 @@ export class UserService {
       user.id,
       Date.now() + 360000
     );
+    //TODO: send token to email
     return tokenItem;
   }
 
@@ -79,6 +86,12 @@ export class UserService {
     }
 
     return this.UserRepo.resetPassword(tokenObject.userId, newPass);
+  }
+
+  async getMyInfo(userId: UserId): Promise<User | undefined> {
+    const user = await this.UserRepo.findById(userId);
+
+    return user;
   }
 }
 

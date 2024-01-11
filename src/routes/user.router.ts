@@ -8,6 +8,7 @@ import {
 import { isIdentifier } from "../modules/user/model/identifier";
 import { UserService } from "../modules/user/user.service";
 import { handleExpress } from "../utility/handle-express";
+import { authMiddleWare } from "./middlewares/auth.middleware";
 
 export const makeUserRouter = (userService: UserService) => {
   const userRouter = Router();
@@ -29,6 +30,11 @@ export const makeUserRouter = (userService: UserService) => {
   userRouter.post("/recover", async (req, res) => {
     const { token, password } = recoverPassDto.parse(req.body);
     handleExpress(res, () => userService.recoverPassword(token, password));
+  });
+
+  userRouter.get("/info", authMiddleWare(userService), async (req, res) => {
+    const user = req.user;
+    handleExpress(res, () => userService.getMyInfo(user.id));
   });
 
   return userRouter;

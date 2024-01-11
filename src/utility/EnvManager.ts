@@ -3,7 +3,6 @@ import { TypeOf, ZodError, z } from "zod";
 const zodEnv = z.object({
   JWT_SECRET: z.string(),
   PORT: z.coerce.number().default(3000),
-  x: z.optional(z.number()),
 });
 
 // TODO: check if using singleton is a good idea in this case

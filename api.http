@@ -3,7 +3,7 @@
 POST  http://localhost:3000/login 
 Content-Type: application/json
 
-{"identifier":"j.fathi1998@gmail.com" , "password" :"Test1234" }
+{"identifier":"j.fathi1998@gmail.com" , "password" :"621377jF" }
 
 
 ### signup 
@@ -29,4 +29,8 @@ Content-Type: application/json
 
 {"token":"d0c3eac5-5d02-4cc8-912d-3fba512c80e5" , "password":"Test1234"}
 
+### info 
 
+GET  http://localhost:3000/info
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MThhNWNiZi1iZDYzLTQwZjEtODQzOC1jZDgxZTBkMWEzOWYiLCJpYXQiOjE3MDQ5NjczMTMsImV4cCI6MTcwNDk3MDkxM30.9WeoJgh0aqryQqdhrufqNfXd6ohPKnOFtX6cNnAyyQ0
