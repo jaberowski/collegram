@@ -6,6 +6,7 @@ import { Email } from "../modules/user/model/email";
 import { NameString } from "../modules/user/model/name";
 import { Password } from "../modules/user/model/password";
 import { Username } from "../modules/user/model/username";
+import bcrypt from "bcrypt";
 
 export const seedUser = async (AppDataSource: DataSource) => {
   const userRepo = AppDataSource.getRepository(UserEntity);
@@ -21,7 +22,7 @@ export const seedUser = async (AppDataSource: DataSource) => {
         email: "j.fathi1998@gmail.com" as Email,
         firstname: "jaber" as NameString,
         lastname: "fathi" as NameString,
-        password: "621377jF" as Password,
+        hashedPassword: bcrypt.hashSync("621377jF", 10),
         profile_Url: "",
         username: "jaberowski" as Username,
         isPrivate: false,

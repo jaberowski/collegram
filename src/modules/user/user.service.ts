@@ -1,7 +1,7 @@
 import { error } from "console";
 import { Email, isEmail } from "./model/email";
 import { Identifier } from "./model/identifier";
-import { Password } from "./model/password";
+import { Password, generateHashedPassword } from "./model/password";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
 import { IUserRepository, UserRepository } from "./user.repository";
@@ -11,6 +11,7 @@ import { makeUUID } from "../../data/UUID";
 import { UUID } from "../../data/UUID";
 import { User } from "./model/user";
 import { makeToken } from "../token/token.helper";
+import bcrypt from "bcrypt";
 
 export class UserService {
   constructor(private userRepo: IUserRepository) {}
@@ -38,7 +39,13 @@ export class UserService {
       throw new HttpError(409, "email already exists");
     }
 
-    return this.userRepo.addUser({ checkedUsername, checkedEmail, password });
+    return generateHashedPassword(password, 10).then((hash) =>
+      this.userRepo.addUser({
+        checkedUsername,
+        checkedEmail,
+        hashedPassword: hash,
+      })
+    );
   }
 
   async signin(identifier: Identifier, password: Password) {
@@ -50,15 +57,18 @@ export class UserService {
       throw new HttpError(404, "username or password is incorrect");
     }
 
-    if (password !== user.password) {
-      throw new HttpError(404, "username or password is incorrect");
-    }
-    try {
-      const token = makeToken(user.id);
-      return { token: `Bearer ${token}` };
-    } catch (e) {
-      console.log(e);
-    }
+    return bcrypt.compare(password, user.hashedPassword).then((result) => {
+      if (result === true) {
+        try {
+          const token = makeToken(user.id);
+          return { token: `Bearer ${token}` };
+        } catch (e) {
+          console.log(e);
+        }
+      } else {
+        throw new HttpError(404, "username or password is incorrect");
+      }
+    });
   }
 
   async forgot(identifier: Identifier) {
@@ -88,7 +98,9 @@ export class UserService {
       throw new HttpError(404, "niste kaka");
     }
 
-    return this.userRepo.resetPassword(tokenObject.userId, newPass);
+    return generateHashedPassword(newPass).then((hash) =>
+      this.userRepo.resetPassword(tokenObject.userId, hash)
+    );
   }
 
   async getMyInfo(userId: UserId): Promise<User | null> {

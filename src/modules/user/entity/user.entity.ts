@@ -2,15 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { UserId } from "../model/user-id";
 import { Username } from "../model/username";
-import { Password } from "../model/password";
+import { HashedPassword, Password } from "../model/password";
 import { Email } from "../model/email";
 import { NameString } from "../model/name";
 import { ResetTokenEntity } from "./resetToken.entity";
@@ -30,7 +27,7 @@ export class UserEntity {
   username!: Username;
 
   @Column()
-  password!: Password;
+  hashedPassword!: HashedPassword;
 
   @Column({ unique: true })
   email!: Email;

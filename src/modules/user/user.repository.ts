@@ -3,7 +3,7 @@ import { UUID } from "../../data/UUID";
 import { HttpError } from "../../utility/http-error";
 import { Email } from "./model/email";
 import { NameString } from "./model/name";
-import { Password } from "./model/password";
+import { HashedPassword, Password } from "./model/password";
 import { CheckedEmail, CheckedUserName, CreateUser, User } from "./model/user";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
@@ -24,7 +24,10 @@ export interface IUserRepository {
   getResetPasswordTokenObject: (
     token: UUID
   ) => Promise<ResetTokenObject | null>;
-  resetPassword: (userId: UserId, newPass: Password) => Promise<void>;
+  resetPassword: (
+    userId: UserId,
+    newHashedPassword: HashedPassword
+  ) => Promise<void>;
   checkAvailableUsername(username: Username): Promise<CheckedUserName>;
   checkAvailableEmail(email: Email): Promise<CheckedEmail>;
 }
@@ -42,16 +45,18 @@ export class UserRepository implements IUserRepository {
     this.userRepo = dataSource.getRepository(UserEntity);
     this.resetTokenRepo = dataSource.getRepository(ResetTokenEntity);
   }
-  async resetPassword(userId: UserId, newPass: Password): Promise<void> {
-    await this.userRepo.update({ id: userId }, { password: newPass });
+  async resetPassword(
+    userId: UserId,
+    newHashedPassword: HashedPassword
+  ): Promise<void> {
+    await this.userRepo.update(
+      { id: userId },
+      { hashedPassword: newHashedPassword }
+    );
   }
   async getResetPasswordTokenObject(
     token: UUID
   ): Promise<ResetTokenObject | null> {
-    // const tokenObject = this.resetTokenRepo.find(
-    //   (item) => item.token === token
-    // );
-
     const tokenObject = await this.resetTokenRepo.findOneBy({
       token: token,
     });
@@ -86,7 +91,7 @@ export class UserRepository implements IUserRepository {
       email: createUser.checkedEmail.data,
       id: v4() as UserId,
       isPrivate: false,
-      password: createUser.password,
+      hashedPassword: createUser.hashedPassword,
     };
     this.userRepo.save(user);
     return user;
