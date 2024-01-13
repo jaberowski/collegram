@@ -17,25 +17,48 @@ export const makeUserRouter = (userService: UserService) => {
     handleExpress(res, async () => userService.signin(identifier, password));
   });
 
-  userRouter.post("/signup", async (req, res) => {
-    const { username, email, password } = signupDto.parse(req.body);
-    handleExpress(res, () => userService.signup({ username, email, password }));
+  userRouter.post("/signup", async (req, res, next) => {
+    console.log(req.body);
+    try {
+      const { username, email, password } = signupDto.parse(req.body);
+      handleExpress(res, () =>
+        userService.signup({ username, email, password })
+      );
+    } catch (error) {
+      next(error);
+    }
   });
 
-  userRouter.post("/forgot", async (req, res) => {
-    const { identifier } = forgotPassDto.parse(req.body);
-    handleExpress(res, () => userService.forgot(identifier));
+  userRouter.post("/forgot", async (req, res, next) => {
+    try {
+      const { identifier } = forgotPassDto.parse(req.body);
+      handleExpress(res, () => userService.forgot(identifier));
+    } catch (error) {
+      next(error);
+    }
   });
 
-  userRouter.post("/recover", async (req, res) => {
-    const { token, password } = recoverPassDto.parse(req.body);
-    handleExpress(res, () => userService.recoverPassword(token, password));
+  userRouter.post("/recover", async (req, res, next) => {
+    try {
+      const { token, password } = recoverPassDto.parse(req.body);
+      handleExpress(res, () => userService.recoverPassword(token, password));
+    } catch (error) {
+      next(error);
+    }
   });
 
-  userRouter.get("/info", authMiddleWare(userService), async (req, res) => {
-    const user = req.user;
-    handleExpress(res, () => userService.getMyInfo(user.id));
-  });
+  userRouter.get(
+    "/info",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const user = req.user;
+        handleExpress(res, () => userService.getMyInfo(user.id));
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
 
   return userRouter;
 };
