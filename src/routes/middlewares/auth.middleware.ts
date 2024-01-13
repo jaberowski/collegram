@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ForbiddenError } from "../../utility/http-error";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
-import { UserService, userService } from "../../modules/user/user.service";
+import { UserService } from "../../modules/user/user.service";
 import { envManager } from "../../main";
 import { verifyToken } from "../../modules/token/token.helper";
 

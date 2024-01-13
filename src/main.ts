@@ -7,6 +7,8 @@ import { UserRepository } from "./modules/user/user.repository";
 import { UserService } from "./modules/user/user.service";
 import dotenv from "dotenv";
 import { EnvManager } from "./utility/EnvManager";
+import { AppDataSource } from "../data-source";
+import { seedUser } from "./utility/seed";
 
 dotenv.config();
 
@@ -18,11 +20,14 @@ declare global {
   }
 }
 
-const userRepo = new UserRepository();
-const userService = new UserService(userRepo);
-const app = makeApp(userService);
 export const envManager = EnvManager.initialize();
 
-app.listen(envManager.get("PORT"), () => {
-  console.log("listening on port " + process.env.PORT);
+AppDataSource.initialize().then(async (dataSource) => {
+  await seedUser(dataSource);
+  const userRepo = new UserRepository(dataSource);
+  const userService = new UserService(userRepo);
+  const app = makeApp(userService);
+  app.listen(envManager.get("PORT"), () => {
+    console.log("listening on port " + process.env.PORT);
+  });
 });

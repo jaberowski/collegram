@@ -18,10 +18,8 @@ export const verifyToken = (token: string) => {
   try {
     const decoded = jwt.verify(token, envManager.get("JWT_SECRET"));
     const data = zodTokenData.parse(decoded);
-    console.log(data);
     return data;
   } catch (err) {
-    console.log(err);
     throw new Error();
   }
 };

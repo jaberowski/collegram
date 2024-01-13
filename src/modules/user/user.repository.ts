@@ -1,3 +1,4 @@
+import { DataSource, Repository } from "typeorm";
 import { UUID } from "../../data/UUID";
 import { HttpError } from "../../utility/http-error";
 import { Email } from "./model/email";
@@ -7,11 +8,13 @@ import { CheckedEmail, CheckedUserName, CreateUser, User } from "./model/user";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
 import { v4 } from "uuid";
+import { UserEntity } from "./entity/user.entity";
+import { ResetTokenEntity } from "./entity/resetToken.entity";
 
 export interface IUserRepository {
-  findById: (id: UserId) => Promise<User | undefined>;
-  findByUsername: (username: Username) => Promise<User | undefined>;
-  findByEmail: (email: Email) => Promise<User | undefined>;
+  findById: (id: UserId) => Promise<User | null>;
+  findByUsername: (username: Username) => Promise<User | null>;
+  findByEmail: (email: Email) => Promise<User | null>;
   addUser: (createUser: CreateUser) => Promise<User>;
   saveResetPasswordTokenObject: (
     userId: UserId,
@@ -20,48 +23,38 @@ export interface IUserRepository {
   ) => Promise<ResetTokenObject>;
   getResetPasswordTokenObject: (
     token: UUID
-  ) => Promise<ResetTokenObject | undefined>;
+  ) => Promise<ResetTokenObject | null>;
   resetPassword: (userId: UserId, newPass: Password) => Promise<void>;
+  checkAvailableUsername(username: Username): Promise<CheckedUserName>;
+  checkAvailableEmail(email: Email): Promise<CheckedEmail>;
 }
 
 interface ResetTokenObject {
   token: UUID;
   userId: UserId;
-  expireDate: number;
+  expireDate: Date;
 }
 
 export class UserRepository implements IUserRepository {
-  private usersRepo: User[];
-  private resetTokenRepo: ResetTokenObject[];
-  constructor() {
-    this.usersRepo = [
-      {
-        id: v4() as UserId,
-        bio: "",
-        email: "j.fathi1998@gmail.com" as Email,
-        firstname: "jaber" as NameString,
-        lastname: "fathi" as NameString,
-        password: "621377jF" as Password,
-        profile_Url: "",
-        username: "jaberowski" as Username,
-        isPrivate: false,
-      },
-    ];
-    this.resetTokenRepo = [];
+  private userRepo: Repository<UserEntity>;
+  private resetTokenRepo: Repository<ResetTokenEntity>;
+  constructor(private dataSource: DataSource) {
+    this.userRepo = dataSource.getRepository(UserEntity);
+    this.resetTokenRepo = dataSource.getRepository(ResetTokenEntity);
   }
   async resetPassword(userId: UserId, newPass: Password): Promise<void> {
-    const user = this.usersRepo.find((item) => item.id === userId)!;
-    const updatedUser = { ...user, password: newPass };
-    this.usersRepo = this.usersRepo.map((item) =>
-      item.id === userId ? updatedUser : item
-    );
+    await this.userRepo.update({ id: userId }, { password: newPass });
   }
   async getResetPasswordTokenObject(
     token: UUID
-  ): Promise<ResetTokenObject | undefined> {
-    const tokenObject = this.resetTokenRepo.find(
-      (item) => item.token === token
-    );
+  ): Promise<ResetTokenObject | null> {
+    // const tokenObject = this.resetTokenRepo.find(
+    //   (item) => item.token === token
+    // );
+
+    const tokenObject = await this.resetTokenRepo.findOneBy({
+      token: token,
+    });
 
     return tokenObject;
   }
@@ -70,13 +63,22 @@ export class UserRepository implements IUserRepository {
     token: UUID,
     expireDate: number
   ): Promise<ResetTokenObject> {
-    // const existingToken = this.resetTokenRepo.find(
-    //   (item) => item.userId === userId
-    // );
-    // update existing one
-    const tokenItem = { expireDate, token, userId };
-    this.resetTokenRepo.push(tokenItem);
-    return tokenItem;
+    const existingToken = await this.resetTokenRepo.findOneBy({ userId });
+
+    if (existingToken) {
+      return await this.resetTokenRepo.save({
+        ...existingToken,
+        token,
+        expireDate: new Date(expireDate),
+      });
+    } else {
+      const tokenItem = await this.resetTokenRepo.save({
+        expireDate: new Date(expireDate),
+        token: token,
+        userId: userId,
+      });
+      return tokenItem;
+    }
   }
   async addUser(createUser: CreateUser): Promise<User> {
     const user: User = {
@@ -86,17 +88,17 @@ export class UserRepository implements IUserRepository {
       isPrivate: false,
       password: createUser.password,
     };
-    this.usersRepo.push(user);
+    this.userRepo.save(user);
     return user;
   }
-  async findById(id: UserId): Promise<User | undefined> {
-    return this.usersRepo.find((item) => item.id === id);
+  async findById(id: UserId): Promise<User | null> {
+    return this.userRepo.findOneBy({ id });
   }
   async findByUsername(username: Username) {
-    return this.usersRepo.find((item) => item.username === username);
+    return this.userRepo.findOneBy({ username });
   }
   async findByEmail(email: Email) {
-    return this.usersRepo.find((item) => item.email === email);
+    return this.userRepo.findOneBy({ email });
   }
 
   async checkAvailableUsername(username: Username): Promise<CheckedUserName> {
