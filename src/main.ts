@@ -5,12 +5,9 @@ import { User } from "./modules/user/model/user";
 import { UserId } from "./modules/user/model/user-id";
 import { UserRepository } from "./modules/user/user.repository";
 import { UserService } from "./modules/user/user.service";
-import dotenv from "dotenv";
-import { EnvManager } from "./utility/EnvManager";
+import { EnvManager, zodEnv } from "./utility/EnvManager";
 import { AppDataSource } from "../data-source";
 import { seedUser } from "./utility/seed";
-
-dotenv.config();
 
 declare global {
   namespace Express {

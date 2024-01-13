@@ -3,7 +3,7 @@
 POST  http://localhost:3000/login 
 Content-Type: application/json
 
-{"identifier":"j.fathi1998@gmail.com" , "password" :"621377jF" }
+{"identifier":"j.fathi1998@gmail.com" , "password" :"Test1234" }
 
 
 ### signup 
@@ -27,10 +27,10 @@ Content-Type: application/json
 POST  http://localhost:3000/recover 
 Content-Type: application/json
 
-{"token":"d0c3eac5-5d02-4cc8-912d-3fba512c80e5" , "password":"Test1234"}
+{"token":"a534ecfe-044d-428a-9e70-409f77bbdd2f" , "password":"Test1234"}
 
 ### info 
 
 GET  http://localhost:3000/info
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MThhNWNiZi1iZDYzLTQwZjEtODQzOC1jZDgxZTBkMWEzOWYiLCJpYXQiOjE3MDQ5NjczMTMsImV4cCI6MTcwNDk3MDkxM30.9WeoJgh0aqryQqdhrufqNfXd6ohPKnOFtX6cNnAyyQ0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMjI1YzE1OS01N2E1LTQ1NTYtYmUyNy00ZDQyYjBiZWM5MzAiLCJpYXQiOjE3MDUxMzA2MDgsImV4cCI6MTcwNTEzNDIwOH0.FChyt9b9fXXhDPfKUfo8Hc-duME-MnGz3sP3PNerAGA
