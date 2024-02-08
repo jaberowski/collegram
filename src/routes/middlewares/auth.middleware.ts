@@ -17,7 +17,7 @@ export const authMiddleWare =
 
     const token = auth.split(" ")[1];
 
-    if (!auth) {
+    if (!token) {
       throw new ForbiddenError();
     }
 
@@ -30,10 +30,9 @@ export const authMiddleWare =
         return;
       }
       req.user = user;
+      next();
     } catch (e) {
       res.status(401).send({ message: "token error" });
       return;
-    } finally {
-      next();
     }
   };
