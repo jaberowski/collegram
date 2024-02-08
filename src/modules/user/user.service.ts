@@ -5,13 +5,20 @@ import { Password, generateHashedPassword } from "./model/password";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
 import { IUserRepository, UserRepository } from "./user.repository";
-import { ForbiddenError, HttpError } from "../../utility/http-error";
+import {
+  ConflictError,
+  ForbiddenError,
+  HttpError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../../utility/http-error";
 import { v4 } from "uuid";
 import { makeUUID } from "../../data/UUID";
 import { UUID } from "../../data/UUID";
 import { User } from "./model/user";
 import { makeToken } from "../token/token.helper";
 import bcrypt from "bcrypt";
+import { Token } from "../token/model/token.model";
 
 export class UserService {
   constructor(private userRepo: IUserRepository) {}
@@ -30,13 +37,13 @@ export class UserService {
     );
 
     if (checkedUsername.status === "taken_username") {
-      throw new HttpError(409, "username already exists");
+      return new ConflictError("username already exists");
     }
 
     const checkedEmail = await this.userRepo.checkAvailableEmail(email);
 
     if (checkedEmail.status === "taken_email") {
-      throw new HttpError(409, "email already exists");
+      return new ConflictError("email already exists");
     }
 
     return generateHashedPassword(password, 10).then((hash) =>
@@ -54,7 +61,7 @@ export class UserService {
       : await this.userRepo.findByUsername(identifier);
 
     if (!user) {
-      throw new HttpError(404, "username or password is incorrect");
+      return new UnauthorizedError("username or password is incorrect");
     }
 
     return bcrypt.compare(password, user.hashedPassword).then((result) => {
@@ -66,7 +73,7 @@ export class UserService {
           console.log(e);
         }
       } else {
-        throw new HttpError(404, "username or password is incorrect");
+        return new UnauthorizedError("username or password is incorrect");
       }
     });
   }
@@ -77,7 +84,7 @@ export class UserService {
       : await this.userRepo.findByUsername(identifier);
 
     if (!user) {
-      throw new HttpError(404, "no such a user");
+      return new NotFoundError("no such a user");
     }
 
     const token = makeUUID();
@@ -95,7 +102,7 @@ export class UserService {
   async recoverPassword(token: UUID, newPass: Password) {
     const tokenObject = await this.userRepo.getResetPasswordTokenObject(token);
     if (!tokenObject) {
-      throw new HttpError(404, "niste kaka");
+      return new HttpError(404, "niste kaka");
     }
 
     return generateHashedPassword(newPass).then((hash) =>
@@ -103,8 +110,12 @@ export class UserService {
     );
   }
 
-  async getMyInfo(userId: UserId): Promise<User | null> {
+  async getMyInfo(userId: UserId): Promise<User | NotFoundError> {
     const user = await this.userRepo.findById(userId);
+
+    if (!user) {
+      return new NotFoundError();
+    }
 
     return user;
   }

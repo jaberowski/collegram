@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ForbiddenError } from "../../utility/http-error";
+import { ForbiddenError, NotFoundError } from "../../utility/http-error";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { UserService } from "../../modules/user/user.service";
 import { envManager } from "../../main";
@@ -25,7 +25,7 @@ export const authMiddleWare =
       const decoded = verifyToken(token);
 
       const user = await userService.getMyInfo(decoded.userId);
-      if (!user) {
+      if (user instanceof NotFoundError) {
         res.status(401).send({ message: "unauthorized" });
         return;
       }

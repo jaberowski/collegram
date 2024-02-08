@@ -15,18 +15,16 @@ export const seedUser = async (AppDataSource: DataSource) => {
   const count = await userRepo.count();
 
   if (count === 0) {
-    console.log(
-      userRepo.save({
-        id: v4() as UserId,
-        bio: "",
-        email: "j.fathi1998@gmail.com" as Email,
-        firstname: "jaber" as NameString,
-        lastname: "fathi" as NameString,
-        hashedPassword: bcrypt.hashSync("621377jF", 10),
-        profile_Url: "",
-        username: "jaberowski" as Username,
-        isPrivate: false,
-      })
-    );
+    userRepo.save({
+      id: v4() as UserId,
+      bio: "",
+      email: "j.fathi1998@gmail.com" as Email,
+      firstname: "jaber" as NameString,
+      lastname: "fathi" as NameString,
+      hashedPassword: bcrypt.hashSync("621377jF", 10),
+      profile_Url: "",
+      username: "jaberowski" as Username,
+      isPrivate: false,
+    });
   }
 };
