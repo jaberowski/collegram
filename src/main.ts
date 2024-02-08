@@ -21,9 +21,7 @@ export const envManager = EnvManager.initialize();
 
 AppDataSource.initialize().then(async (dataSource) => {
   await seedUser(dataSource);
-  const userRepo = new UserRepository(dataSource);
-  const userService = new UserService(userRepo);
-  const app = makeApp(userService);
+  const app = makeApp(dataSource);
   app.listen(envManager.get("PORT"), () => {
     console.log("listening on port " + process.env.PORT);
   });
