@@ -33,4 +33,13 @@ Content-Type: application/json
 
 GET  http://localhost:3000/info
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMjI1YzE1OS01N2E1LTQ1NTYtYmUyNy00ZDQyYjBiZWM5MzAiLCJpYXQiOjE3MDUxMzA2MDgsImV4cCI6MTcwNTEzNDIwOH0.FChyt9b9fXXhDPfKUfo8Hc-duME-MnGz3sP3PNerAGA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmMjk5NzZlNi03NDg5LTQ1MmYtYmU0OC1mNmE5Y2UxMTliNjgiLCJpYXQiOjE3MDg2MTUzMTYsImV4cCI6MTcwODYxODkxNn0.P3zr3KaLe58BxwCz6Yd4TjtSc_dPWu9GbiaLJxwy1tc
+
+
+### edit user info 
+
+POST  http://localhost:3000/edit 
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmMjk5NzZlNi03NDg5LTQ1MmYtYmU0OC1mNmE5Y2UxMTliNjgiLCJpYXQiOjE3MDg2MTUzMTYsImV4cCI6MTcwODYxODkxNn0.P3zr3KaLe58BxwCz6Yd4TjtSc_dPWu9GbiaLJxwy1tc
+
+{"firstname":"saeed"}

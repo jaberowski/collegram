@@ -4,6 +4,7 @@ import { zodPassword } from "../model/password";
 import { zodUsername } from "../model/username";
 import { isEmail } from "../model/email";
 import { isUUID } from "../../../data/UUID";
+import { zodNameString } from "../model/name";
 
 export const signinDto = z.object({
   identifier: zodIdentifier,
@@ -23,4 +24,13 @@ export const forgotPassDto = z.object({
 export const recoverPassDto = z.object({
   token: z.string().refine(isUUID),
   password: zodPassword,
+});
+
+export const changeInfo = z.object({
+  email: z.string().refine(isEmail).optional(),
+  firstname: zodNameString.optional(),
+  lastname: zodNameString.optional(),
+  bio: z.string().optional(),
+  isPrivate: z.boolean().optional(),
+  password: zodPassword.optional(),
 });

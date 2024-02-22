@@ -1,24 +1,20 @@
-import { error } from "console";
 import { Email, isEmail } from "./model/email";
 import { Identifier } from "./model/identifier";
 import { Password, generateHashedPassword } from "./model/password";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
-import { IUserRepository, UserRepository } from "./user.repository";
+import { IUserRepository } from "./user.repository";
 import {
   ConflictError,
-  ForbiddenError,
   HttpError,
   NotFoundError,
   UnauthorizedError,
 } from "../../utility/http-error";
-import { v4 } from "uuid";
 import { makeUUID } from "../../data/UUID";
 import { UUID } from "../../data/UUID";
-import { User } from "./model/user";
+import { ChangeInfoUser, ChangeInfoUserWithEmail, User } from "./model/user";
 import { makeToken } from "../token/token.helper";
 import bcrypt from "bcrypt";
-import { Token } from "../token/model/token.model";
 
 export class UserService {
   constructor(private userRepo: IUserRepository) {}
@@ -118,5 +114,42 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async changeMyInfo(
+    user: User,
+    changeInfo: ChangeInfoUser
+  ): Promise<void | ConflictError> {
+    if (changeInfo.email && user.email !== changeInfo.email) {
+      return await this.changeMyInfoWithEmailChange({
+        ...changeInfo,
+        email: changeInfo.email,
+      });
+    } else {
+      return await this.changeMyInfoWithoutEmailChange(changeInfo);
+    }
+  }
+
+  private async changeMyInfoWithEmailChange(
+    changeInfo: ChangeInfoUserWithEmail
+  ): Promise<void | ConflictError> {
+    const checkEmail = await this.userRepo.checkAvailableEmail(
+      changeInfo.email!
+    );
+    if (checkEmail.status === "taken_email") {
+      return new ConflictError("email is taken");
+    } else {
+      return await this.userRepo.updateUserInfo({
+        ...changeInfo,
+        email: checkEmail,
+      });
+    }
+  }
+
+  private async changeMyInfoWithoutEmailChange(
+    changeInfo: ChangeInfoUser
+  ): Promise<void> {
+    const { email, ...data } = changeInfo;
+    return await this.userRepo.updateUserInfo(data);
   }
 }

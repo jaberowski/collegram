@@ -9,4 +9,4 @@ const isNameString = (value: string): value is NameString => {
   return nameRegex.test(value);
 };
 
-const zodNameString = z.string().refine(isNameString);
+export const zodNameString = z.string().refine(isNameString);

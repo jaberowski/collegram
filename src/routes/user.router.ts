@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  changeInfo,
   forgotPassDto,
   recoverPassDto,
   signinDto,
@@ -54,6 +55,22 @@ export const makeUserRouter = (userService: UserService) => {
       try {
         const user = req.user;
         handleExpress(res, () => userService.getMyInfo(user.id));
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/edit",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const user = req.user;
+        const data = changeInfo.parse(req.body);
+        handleExpress(res, () =>
+          userService.changeMyInfo(user, { ...data, id: user.id })
+        );
       } catch (error) {
         next(error);
       }

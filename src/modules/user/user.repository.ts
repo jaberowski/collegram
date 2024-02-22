@@ -4,7 +4,14 @@ import { HttpError } from "../../utility/http-error";
 import { Email } from "./model/email";
 import { NameString } from "./model/name";
 import { HashedPassword, Password } from "./model/password";
-import { CheckedEmail, CheckedUserName, CreateUser, User } from "./model/user";
+import {
+  ChangeInfoUser,
+  CheckedChangeInfoUser,
+  CheckedEmail,
+  CheckedUserName,
+  CreateUser,
+  User,
+} from "./model/user";
 import { UserId } from "./model/user-id";
 import { Username } from "./model/username";
 import { v4 } from "uuid";
@@ -30,6 +37,7 @@ export interface IUserRepository {
   ) => Promise<void>;
   checkAvailableUsername(username: Username): Promise<CheckedUserName>;
   checkAvailableEmail(email: Email): Promise<CheckedEmail>;
+  updateUserInfo(changeInfo: CheckedChangeInfoUser): Promise<void>;
 }
 
 interface ResetTokenObject {
@@ -119,5 +127,12 @@ export class UserRepository implements IUserRepository {
     return result
       ? { status: "taken_email", data: email }
       : { status: "available_email", data: email };
+  }
+
+  async updateUserInfo(changeInfo: CheckedChangeInfoUser) {
+    await this.userRepo.save({
+      ...changeInfo,
+      email: changeInfo.email?.data,
+    });
   }
 }

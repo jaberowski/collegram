@@ -1,3 +1,4 @@
+import { changeInfo } from "../dto/authentication.dto";
 import { Email } from "./email";
 import { NameString } from "./name";
 import { HashedPassword, Password } from "./password";
@@ -60,4 +61,26 @@ export type CreateUser = {
   checkedUsername: AvailableUsername;
   checkedEmail: AvailableEmail;
   hashedPassword: HashedPassword;
+};
+
+export interface ChangeInfoUser {
+  id: UserId;
+  email?: Email;
+  firstname?: NameString;
+  lastname?: NameString;
+  bio?: string;
+  isPrivate?: boolean;
+}
+
+export interface ChangeInfoUserWithEmail extends ChangeInfoUser {
+  email: Email;
+}
+
+export type CheckedChangeInfoUser = {
+  id: UserId;
+  email?: CheckedEmail;
+  firstname?: NameString;
+  lastname?: NameString;
+  bio?: string;
+  isPrivate?: boolean;
 };
