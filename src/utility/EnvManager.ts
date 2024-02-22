@@ -14,6 +14,7 @@ export const zodEnv = z.object({
 
 // TODO: check if using singleton is a good idea in this case
 export class EnvManager {
+  private static instance: EnvManager;
   private parsedEnv!: z.infer<typeof zodEnv>;
   private constructor() {
     try {
@@ -26,7 +27,14 @@ export class EnvManager {
     }
   }
   public static initialize() {
-    return new EnvManager();
+    return this.getInstance();
+  }
+
+  public static getInstance(): EnvManager {
+    if (!EnvManager.instance) {
+      EnvManager.instance = new EnvManager();
+    }
+    return EnvManager.instance;
   }
 
   public get<A extends keyof z.infer<typeof zodEnv>>(name: A) {
