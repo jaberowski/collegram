@@ -62,12 +62,8 @@ export class UserService {
 
     return bcrypt.compare(password, user.hashedPassword).then((result) => {
       if (result === true) {
-        try {
-          const token = makeToken(user.id);
-          return { token: `Bearer ${token}` };
-        } catch (e) {
-          console.log(e);
-        }
+        const token = makeToken(user.id);
+        return { token: `Bearer ${token}` };
       } else {
         return new UnauthorizedError("username or password is incorrect");
       }

@@ -18,4 +18,5 @@ export const AppDataSource = new DataSource({
   entities: [UserEntity, ResetTokenEntity],
   migrations: [],
   subscribers: [],
+  poolSize: 1,
 });

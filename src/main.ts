@@ -23,6 +23,6 @@ AppDataSource.initialize().then(async (dataSource) => {
   await seedUser(dataSource);
   const app = makeApp(dataSource);
   app.listen(envManager.get("PORT"), () => {
-    console.log("listening on port " + process.env.PORT);
+    console.log("listening on port " + envManager.get("PORT"));
   });
 });

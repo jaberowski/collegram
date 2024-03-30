@@ -12,7 +12,6 @@ export const zodEnv = z.object({
   DATABASE_NAME: z.string(),
 });
 
-// TODO: check if using singleton is a good idea in this case
 export class EnvManager {
   private static instance: EnvManager;
   private parsedEnv!: z.infer<typeof zodEnv>;
