@@ -8,7 +8,6 @@ import { verifyToken } from "../../modules/token/token.helper";
 export const authMiddleWare =
   (userService: UserService) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    //
     const auth = req.headers.authorization;
 
     if (!auth) {

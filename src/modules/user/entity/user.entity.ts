@@ -38,8 +38,10 @@ export class UserEntity {
   @Column({ nullable: true, length: 255 })
   bio!: string;
 
-  @Column({ nullable: true })
-  profileUrl!: string;
+  @Column({
+    nullable: true,
+  })
+  avatarName!: string;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: number;

@@ -10,6 +10,8 @@ export const zodEnv = z.object({
   DATABASE_USERNAME: z.string(),
   DATABASE_PASS: z.string(),
   DATABASE_NAME: z.string(),
+  UPLOAD_DIR: z.string().default("/uploads/temp"),
+  SERVER_URL: z.string().default("http://localhost:3000"),
 });
 
 export class EnvManager {

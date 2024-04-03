@@ -6,10 +6,10 @@ import {
   signinDto,
   signupDto,
 } from "../modules/user/dto/authentication.dto";
-import { isIdentifier } from "../modules/user/model/identifier";
 import { UserService } from "../modules/user/user.service";
 import { handleExpress } from "../utility/handle-express";
 import { authMiddleWare } from "./middlewares/auth.middleware";
+import { upload } from "./middlewares/upload.middleware";
 
 export const makeUserRouter = (userService: UserService) => {
   const userRouter = Router();
@@ -64,12 +64,17 @@ export const makeUserRouter = (userService: UserService) => {
   userRouter.post(
     "/edit",
     authMiddleWare(userService),
+    upload.uploadAvatar(),
     async (req, res, next) => {
       try {
         const user = req.user;
         const data = changeInfo.parse(req.body);
         handleExpress(res, () =>
-          userService.changeMyInfo(user, { ...data, id: user.id })
+          userService.changeMyInfo(user, {
+            ...data,
+            id: user.id,
+            ...(req.file ? { avatarName: req.file.filename } : {}),
+          })
         );
       } catch (error) {
         next(error);

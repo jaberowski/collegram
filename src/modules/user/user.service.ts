@@ -12,9 +12,15 @@ import {
 } from "../../utility/http-error";
 import { makeUUID } from "../../data/UUID";
 import { UUID } from "../../data/UUID";
-import { ChangeInfoUser, ChangeInfoUserWithEmail, User } from "./model/user";
+import {
+  ChangeInfoUser,
+  ChangeInfoUserWithEmail,
+  FEUser,
+  User,
+} from "./model/user";
 import { makeToken } from "../token/token.helper";
 import bcrypt from "bcrypt";
+import { generateAvatarUrl, saveAvatarImage } from "../../utility/imageHelper";
 
 export class UserService {
   constructor(private userRepo: IUserRepository) {}
@@ -102,14 +108,17 @@ export class UserService {
     );
   }
 
-  async getMyInfo(userId: UserId): Promise<User | NotFoundError> {
+  async getMyInfo(userId: UserId): Promise<FEUser | NotFoundError> {
     const user = await this.userRepo.findById(userId);
 
     if (!user) {
       return new NotFoundError();
     }
-
-    return user;
+    const frontEndUser: FEUser = {
+      ...user,
+      avatarUrl: user.avatarName ? generateAvatarUrl(user.avatarName) : "",
+    };
+    return frontEndUser;
   }
 
   async changeMyInfo(
@@ -135,6 +144,8 @@ export class UserService {
     if (checkEmail.status === "taken_email") {
       return new ConflictError("email is taken");
     } else {
+      if (changeInfo.avatarName) saveAvatarImage(changeInfo.avatarName);
+
       return await this.userRepo.updateUserInfo({
         ...changeInfo,
         email: checkEmail,
@@ -145,7 +156,10 @@ export class UserService {
   private async changeMyInfoWithoutEmailChange(
     changeInfo: ChangeInfoUser
   ): Promise<void> {
+    if (changeInfo.avatarName) saveAvatarImage(changeInfo.avatarName);
+
     const { email, ...data } = changeInfo;
-    return await this.userRepo.updateUserInfo(data);
+
+    return await this.userRepo.updateUserInfo({ ...data });
   }
 }

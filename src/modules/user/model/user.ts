@@ -10,11 +10,15 @@ export interface User {
   username: Username;
   hashedPassword: HashedPassword;
   email: Email;
-  profile_Url?: string;
+  avatarName?: string;
   firstname?: NameString;
   lastname?: NameString;
   isPrivate: boolean;
   bio?: string;
+}
+
+export interface FEUser extends Omit<User, "avatarName"> {
+  avatarUrl: string;
 }
 
 export interface PublicUser extends User {
@@ -70,17 +74,13 @@ export interface ChangeInfoUser {
   lastname?: NameString;
   bio?: string;
   isPrivate?: boolean;
+  avatarName?: string;
 }
 
 export interface ChangeInfoUserWithEmail extends ChangeInfoUser {
   email: Email;
 }
 
-export type CheckedChangeInfoUser = {
-  id: UserId;
+export interface CheckedChangeInfoUser extends Omit<ChangeInfoUser, "email"> {
   email?: CheckedEmail;
-  firstname?: NameString;
-  lastname?: NameString;
-  bio?: string;
-  isPrivate?: boolean;
-};
+}
