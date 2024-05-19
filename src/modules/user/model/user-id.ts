@@ -9,7 +9,7 @@ export const isUserId = (value: string): value is UserId => {
   return validate(value);
 };
 
-export const zodProgramId = z.string().refine(isUserId);
+export const zodUserId = z.string().refine(isUserId);
 
 export interface ExistingUserId {
   status: "existing";

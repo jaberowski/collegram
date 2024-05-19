@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { UserEntity } from "./src/modules/user/entity/user.entity";
 import { ResetTokenEntity } from "./src/modules/user/entity/resetToken.entity";
 import { EnvManager, zodEnv } from "./src/utility/EnvManager";
+import { UserRelationEntity } from "./src/modules/userRelations/entity/userRelation.entity";
 
 const envManager = EnvManager.initialize();
 
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: envManager.get("DATABASE_NAME"),
   synchronize: true,
   logging: false,
-  entities: [UserEntity, ResetTokenEntity],
+  entities: [UserRelationEntity, UserEntity, ResetTokenEntity],
   migrations: [],
   subscribers: [],
   poolSize: 1,

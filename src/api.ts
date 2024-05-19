@@ -5,6 +5,8 @@ import { makeUserRouter } from "./routes/user.router";
 import { DataSource } from "typeorm";
 import { UserRepository } from "./modules/user/user.repository";
 import { UploadError } from "./routes/middlewares/upload.middleware";
+import { UserRelationREpository } from "./modules/userRelations/userRelation.repository";
+import { UserRelationService } from "./modules/userRelations/userRelation.service";
 
 export const makeApp = (dataSource: DataSource) => {
   const app = express();
@@ -14,7 +16,10 @@ export const makeApp = (dataSource: DataSource) => {
   const userRepo = new UserRepository(dataSource);
   const userService = new UserService(userRepo);
 
-  app.use("/", makeUserRouter(userService));
+  const userRelationRepo = new UserRelationREpository(dataSource);
+  const userRelationService = new UserRelationService(userRelationRepo);
+
+  app.use("/", makeUserRouter(userService, userRelationService));
   app.use("/images", express.static("uploads"));
 
   app.use((req, res, next) => {

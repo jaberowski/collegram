@@ -7,11 +7,15 @@ import { NameString } from "../modules/user/model/name";
 import { Password } from "../modules/user/model/password";
 import { Username } from "../modules/user/model/username";
 import bcrypt from "bcrypt";
+import { UserRelationREpository } from "../modules/userRelations/userRelation.repository";
+import { UserRelationEntity } from "../modules/userRelations/entity/userRelation.entity";
 
 export const seedUser = async (AppDataSource: DataSource) => {
   const userRepo = AppDataSource.getRepository(UserEntity);
+  const userRelationRepo = AppDataSource.getRepository(UserRelationEntity);
 
-  userRepo.clear();
+  userRelationRepo.delete({});
+  userRepo.delete({});
   const count = await userRepo.count();
 
   if (count === 0) {

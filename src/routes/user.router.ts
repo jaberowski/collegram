@@ -10,8 +10,16 @@ import { UserService } from "../modules/user/user.service";
 import { handleExpress } from "../utility/handle-express";
 import { authMiddleWare } from "./middlewares/auth.middleware";
 import { upload } from "./middlewares/upload.middleware";
+import { UserRelationService } from "../modules/userRelations/userRelation.service";
+import {
+  userIdDto,
+  userRelationDto,
+} from "../modules/userRelations/dto/user-relation.dto";
 
-export const makeUserRouter = (userService: UserService) => {
+export const makeUserRouter = (
+  userService: UserService,
+  UserRelationService: UserRelationService
+) => {
   const userRouter = Router();
   userRouter.post("/login", async (req, res) => {
     const { identifier, password } = signinDto.parse(req.body);
@@ -75,6 +83,90 @@ export const makeUserRouter = (userService: UserService) => {
             id: user.id,
             ...(req.file ? { avatarName: req.file.filename } : {}),
           })
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/follow",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.follow(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/unfollow",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.unfollow(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.get(
+    "/followers",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { userId } = userIdDto.parse(req.body);
+        handleExpress(res, () => UserRelationService.followersList(userId));
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.get(
+    "/followers/me",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        handleExpress(res, () =>
+          UserRelationService.followersList(req.user.id)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.get(
+    "/followings",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { userId } = userIdDto.parse(req.body);
+        handleExpress(res, () => UserRelationService.followingsList(userId));
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.get(
+    "/followings/me",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        handleExpress(res, () =>
+          UserRelationService.followingsList(req.user.id)
         );
       } catch (error) {
         next(error);
