@@ -1,0 +1,90 @@
+### login 
+
+POST  http://localhost:3000/login 
+Content-Type: application/json
+
+{"identifier":"Saman" , "password" :"Saman123456" }
+
+
+### signup 
+
+POST  http://localhost:3000/signup 
+Content-Type: application/json
+
+{"username":"Saman" , "password":"Saman123456" , "email":"Saman@gmail.com" }
+
+
+### forgot 
+
+POST  http://localhost:3000/forgot 
+Content-Type: application/json
+
+{"identifier":"j.fathi1998@gmail.com"}
+
+
+### recover 
+
+POST  http://localhost:3000/recover 
+Content-Type: application/json
+
+{"token":"a534ecfe-044d-428a-9e70-409f77bbdd2f" , "password":"Test1234"}
+
+### info 
+
+GET  http://localhost:3000/info
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OGRiMjQxOS0xYzZiLTRjYzQtYjJhMC04ZDUxNzI0MzdhMDEiLCJpYXQiOjE3MTM5MDI5NTgsImV4cCI6MTcxMzkwNjU1OH0.b5xJEACyVJ4abW3eNSbHKLKyeJwxwy0EGEzVICJGLcY
+
+
+### edit user info 
+
+POST  http://localhost:3000/edit 
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyOTFkYzc5ZC05OTI3LTQ1MDgtYTIyZC04ZDY1MTI4NmZhM2EiLCJpYXQiOjE3MTQ3NTQ1ODIsImV4cCI6MTcxNDc1ODE4Mn0.YA7QG7xeoPkJflpecB5OZpAfYXQj13bP0e9NX1Qw6L8
+
+{"firstname":"saeed"}
+
+### follow user
+
+POST  http://localhost:3000/follow 
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiODg3MjNhYS1hNWUxLTRmNWYtYTAxZC04ZmQ2YzhkNGNjY2QiLCJpYXQiOjE3MTQ3NTcxMTcsImV4cCI6MTcxNDc2MDcxN30.M1yctAvoFqXwYYvwmr7Ei1x7VHKR4XECZJY9mE24QEo
+
+{"targetUserId":"70fe6124-ad16-4593-ae5b-dad25702867c"}
+
+### unfollow user
+
+POST  http://localhost:3000/unfollow 
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjYTFlZmM2My01ZjFmLTRhNjQtYTQ1Yy1lNTM0ZjNjMmFjMWQiLCJpYXQiOjE3MTQ3NTQ5NTYsImV4cCI6MTcxNDc1ODU1Nn0.L69PsoigyymqT8SjOSlML6fKeL80yqzqnIHlZUMT1Qc
+
+{"targetUserId":"b38b30fa-493f-46d8-862f-68903cfb58f1"}
+
+### followers list 
+
+GET   http://localhost:3000/followers
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5N2QzZDA4MC03OGZmLTQxMTktOGNiOC1kYjYwMWJmNDM3NGUiLCJpYXQiOjE3MTQ3NTYxMjEsImV4cCI6MTcxNDc1OTcyMX0.XmekgqX-auLPusF6feg7PvTgz-H6Zt20xJz0rjJIT_Y
+
+{"userId":"be1a84dd-12b9-4418-953e-c851730f8597"}
+
+### my followers list 
+
+GET   http://localhost:3000/followers/me
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiODg3MjNhYS1hNWUxLTRmNWYtYTAxZC04ZmQ2YzhkNGNjY2QiLCJpYXQiOjE3MTQ3NTcxMTcsImV4cCI6MTcxNDc2MDcxN30.M1yctAvoFqXwYYvwmr7Ei1x7VHKR4XECZJY9mE24QEo
+
+### followeings list 
+
+GET   http://localhost:3000/followings
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5N2QzZDA4MC03OGZmLTQxMTktOGNiOC1kYjYwMWJmNDM3NGUiLCJpYXQiOjE3MTQ3NTYxMjEsImV4cCI6MTcxNDc1OTcyMX0.XmekgqX-auLPusF6feg7PvTgz-H6Zt20xJz0rjJIT_Y
+
+{"userId":"be1a84dd-12b9-4418-953e-c851730f8597"}
+
+### my followings list 
+
+GET   http://localhost:3000/followings/me
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiODg3MjNhYS1hNWUxLTRmNWYtYTAxZC04ZmQ2YzhkNGNjY2QiLCJpYXQiOjE3MTQ3NTcxMTcsImV4cCI6MTcxNDc2MDcxN30.M1yctAvoFqXwYYvwmr7Ei1x7VHKR4XECZJY9mE24QEo
+
