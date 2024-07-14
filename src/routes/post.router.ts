@@ -27,7 +27,7 @@ export const makePostRouter = (
     }
   });
 
-  postRouter.delete("/delete/:postId", (req, res, next) => {
+  postRouter.delete("/:postId", (req, res, next) => {
     try {
       const postId = zodPostId.parse(req.params.postId);
       handleExpress(res, async () => postService.deletePost(postId));
