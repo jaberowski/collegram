@@ -19,6 +19,10 @@ class Upload {
     return this.wrapper(this.getMulter().single("avatar"));
   }
 
+  public uploadPostImages() {
+    return this.wrapper(this.getMulter().array("postImages", 6));
+  }
+
   private getMulter() {
     return multer({
       storage: this.storage,

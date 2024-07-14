@@ -13,3 +13,15 @@ export async function saveAvatarImage(fileName: string) {
     "uploads/avatars/" + fileName
   );
 }
+
+export async function savePostImage(fileName: string) {
+  await rename(
+    EnvManager.getInstance().get("UPLOAD_DIR") + "/" + fileName,
+    "uploads/postImages/" + fileName
+  );
+}
+
+export function generatePostImageUrl(fileName: string) {
+  const serverUrl = EnvManager.getInstance().get("SERVER_URL");
+  return `${serverUrl}/images/postImages/${fileName}`;
+}

@@ -7,6 +7,10 @@ import { UserRepository } from "./modules/user/user.repository";
 import { UploadError } from "./routes/middlewares/upload.middleware";
 import { UserRelationREpository } from "./modules/userRelations/userRelation.repository";
 import { UserRelationService } from "./modules/userRelations/userRelation.service";
+import { makePostRouter } from "./routes/post.router";
+import { PostRepository } from "./modules/post/post.repository";
+import { PostService } from "./modules/post/post.service";
+import { authMiddleWare } from "./routes/middlewares/auth.middleware";
 
 export const makeApp = (dataSource: DataSource) => {
   const app = express();
@@ -19,7 +23,19 @@ export const makeApp = (dataSource: DataSource) => {
   const userRelationRepo = new UserRelationREpository(dataSource);
   const userRelationService = new UserRelationService(userRelationRepo);
 
+  const postRepo = new PostRepository(dataSource);
+  const postService = new PostService(
+    postRepo,
+    userRelationService,
+    userService
+  );
+
   app.use("/", makeUserRouter(userService, userRelationService));
+  app.use(
+    "/posts",
+    authMiddleWare(userService),
+    makePostRouter(postService, userService)
+  );
   app.use("/images", express.static("uploads"));
 
   app.use((req, res, next) => {

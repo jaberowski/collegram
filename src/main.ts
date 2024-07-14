@@ -20,6 +20,11 @@ declare global {
 export const envManager = EnvManager.initialize();
 
 AppDataSource.initialize().then(async (dataSource) => {
+  //TODO: delete after database froms stable
+  const entitiesMetadata = dataSource.entityMetadatas;
+  for (const meta of entitiesMetadata) {
+    await dataSource.query(`TRUNCATE TABLE ${meta.tableName} CASCADE`);
+  }
   await seedUser(dataSource);
   const app = makeApp(dataSource);
   app.listen(envManager.get("PORT"), () => {
