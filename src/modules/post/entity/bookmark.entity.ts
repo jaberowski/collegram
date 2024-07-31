@@ -25,13 +25,13 @@ export class BookmarkEntity {
   @Column()
   postId!: PostId;
 
-  @ManyToOne(() => PostEntity, (PostEntity) => PostEntity.likes)
+  @ManyToOne(() => PostEntity, (PostEntity) => PostEntity.bookmarks)
   post!: PostEntity;
 
   @Column()
   userId!: UserId;
 
-  @ManyToOne(() => UserEntity, (UserEntity) => UserEntity.likes)
+  @ManyToOne(() => UserEntity, (UserEntity) => UserEntity.bookmarks)
   user!: UserEntity;
 
   @CreateDateColumn({ type: "timestamp" })

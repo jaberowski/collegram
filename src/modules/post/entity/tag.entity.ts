@@ -33,7 +33,7 @@ export class TagEntity {
 
   @ManyToMany(() => PostEntity, (PostEntity) => PostEntity.tags)
   @JoinTable()
-  posts!: Post[];
+  posts!: PostEntity[];
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: number;

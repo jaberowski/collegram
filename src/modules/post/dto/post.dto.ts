@@ -11,7 +11,7 @@ export const addPostDto = z
     description: zodPostDescription,
     isCloseFriendsOnly: zodBooleanOrBooleanString,
     tags: z.array(zodTagString).min(1).max(10),
-    files: z.array(z.object({ filename: z.string().min(1) })),
+    files: z.array(z.object({ filename: z.string().min(1) })).max(5),
   })
   .transform((obj) => {
     const { files, ...fileFilteredObj } = obj;
