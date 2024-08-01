@@ -60,7 +60,7 @@ export class PostRepository implements IPostRepository {
   async getTagWithPosts(tagValue: TagString): Promise<TagEntity | null> {
     const tag = await this.tagsRepo.findOne({
       where: { value: tagValue },
-      relations: { posts: { tags: true } },
+      relations: { posts: { tags: true, user: true } },
     });
 
     return tag;

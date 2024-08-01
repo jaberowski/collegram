@@ -145,8 +145,14 @@ export class PostService {
   ): Promise<PostCardBasic[] | NotFoundError> {
     const tag = await this.postRepo.getTagWithPosts(tagValue);
     if (!tag) return new NotFoundError("no such a tag");
+
+    const filteredPosts = tag.posts.filter(
+      (post) =>
+        post.isCloseFriendsOnly === false && post.user.isPrivate === false
+    );
+
     return Promise.all(
-      tag.posts.map(async (post) => {
+      filteredPosts.map(async (post) => {
         return this.postMapper(post, myUserId).toPostCardBasic();
       })
     );

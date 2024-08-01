@@ -21,6 +21,7 @@ export interface PostDomain {
   tags: Tag[];
   userId: UserId;
   createdAt: number;
+  isCloseFriendsOnly: boolean;
   updatedAt: number;
   fileNames: string[];
   likesCount: number;
