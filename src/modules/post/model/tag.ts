@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { Brand } from "../../../utility/brand";
 import { UUID } from "../../../data/UUID";
-import { Post } from "./post";
 import { validate } from "uuid";
 
 export type TagString = Brand<string, "tag">;

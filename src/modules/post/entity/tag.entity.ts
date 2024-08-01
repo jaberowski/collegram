@@ -21,7 +21,6 @@ import { PostTitle } from "../model/postTitle";
 import { PostDescription } from "../model/postDescription";
 import { Tag, TagId, TagString } from "../model/tag";
 import { PostEntity } from "./post.entity";
-import { Post } from "../model/post";
 
 @Entity("tags")
 export class TagEntity {

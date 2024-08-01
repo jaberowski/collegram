@@ -17,7 +17,6 @@ import { Email } from "../model/email";
 import { NameString } from "../model/name";
 import { ResetTokenEntity } from "./resetToken.entity";
 import { PostEntity } from "../../post/entity/post.entity";
-import { Post } from "../../post/model/post";
 import { LikeEntity } from "../../post/entity/like.entity";
 import { BookmarkEntity } from "../../post/entity/bookmark.entity";
 
@@ -56,7 +55,7 @@ export class UserEntity {
   @OneToMany(() => PostEntity, (PostEntity) => PostEntity.user, {
     onDelete: "CASCADE",
   })
-  posts!: Post[];
+  posts!: PostEntity[];
 
   @OneToMany(() => LikeEntity, (LikeEntity) => LikeEntity.user, {
     eager: false,
