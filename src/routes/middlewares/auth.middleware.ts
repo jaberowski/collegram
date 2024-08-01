@@ -23,7 +23,7 @@ export const authMiddleWare =
     try {
       const decoded = verifyToken(token);
 
-      const user = await userService.getMyInfo(decoded.userId);
+      const user = await userService.getUserInfo(decoded.userId);
       if (user instanceof NotFoundError) {
         res.status(401).send({ message: "unauthorized" });
         return;

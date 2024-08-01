@@ -108,7 +108,7 @@ export class UserService {
     );
   }
 
-  async getMyInfo(userId: UserId): Promise<FEUser | NotFoundError> {
+  async getUserInfo(userId: UserId): Promise<FEUser | NotFoundError> {
     const user = await this.userRepo.findById(userId);
 
     if (!user) {
@@ -161,5 +161,14 @@ export class UserService {
     const { email, ...data } = changeInfo;
 
     return await this.userRepo.updateUserInfo({ ...data });
+  }
+
+  async isPrivateUser(userId: UserId): Promise<boolean | NotFoundError> {
+    const user = await this.getUserInfo(userId);
+
+    if (user instanceof NotFoundError) {
+      return user;
+    }
+    return user.isPrivate;
   }
 }

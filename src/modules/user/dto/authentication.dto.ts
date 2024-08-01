@@ -5,6 +5,7 @@ import { zodUsername } from "../model/username";
 import { isEmail } from "../model/email";
 import { isUUID } from "../../../data/UUID";
 import { zodNameString } from "../model/name";
+import { zodBooleanOrBooleanString } from "../../../data/booleanOrBooleanString";
 
 export const signinDto = z.object({
   identifier: zodIdentifier,
@@ -31,6 +32,6 @@ export const changeInfo = z.object({
   firstname: zodNameString.optional(),
   lastname: zodNameString.optional(),
   bio: z.string().optional(),
-  isPrivate: z.boolean().optional(),
+  isPrivate: zodBooleanOrBooleanString.optional(),
   password: zodPassword.optional(),
 });

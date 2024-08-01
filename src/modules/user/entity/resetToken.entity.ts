@@ -1,21 +1,8 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-  Timestamp,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserId } from "../model/user-id";
-import { Username } from "../model/username";
-import { Password } from "../model/password";
-import { Email } from "../model/email";
-import { NameString } from "../model/name";
 import { UserEntity } from "./user.entity";
 import { UUID } from "crypto";
+import { User } from "../model/user";
 
 interface ResetTokenObject {
   token: UUID;
@@ -23,10 +10,13 @@ interface ResetTokenObject {
   expireDate: Date;
 }
 
-@Entity("resetTokens")
+@Entity()
 export class ResetTokenEntity {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @OneToOne(() => UserEntity, (UserEntity) => UserEntity.resetToken)
+  user!: User;
 
   @Column()
   userId!: UserId;

@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
+  JoinColumn,
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -13,7 +13,7 @@ import { UUID } from "../../../data/UUID";
 import { UserRelationStatus } from "../model/userRelation";
 import { UserEntity } from "../../user/entity/user.entity";
 
-@Entity("userRelations")
+@Entity()
 export class UserRelationEntity {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -22,14 +22,14 @@ export class UserRelationEntity {
   userId!: UserId;
 
   @ManyToOne(() => UserEntity)
-  @JoinTable()
+  @JoinColumn()
   user!: UserEntity;
 
   @Column()
   targetUserId!: UserId;
 
   @ManyToOne(() => UserEntity)
-  @JoinTable()
+  @JoinColumn()
   targetUser!: UserEntity;
 
   @Column({ nullable: false })

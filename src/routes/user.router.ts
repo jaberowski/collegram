@@ -21,13 +21,16 @@ export const makeUserRouter = (
   UserRelationService: UserRelationService
 ) => {
   const userRouter = Router();
-  userRouter.post("/login", async (req, res) => {
-    const { identifier, password } = signinDto.parse(req.body);
-    handleExpress(res, async () => userService.signin(identifier, password));
+  userRouter.post("/login", async (req, res, next) => {
+    try {
+      const { identifier, password } = signinDto.parse(req.body);
+      handleExpress(res, async () => userService.signin(identifier, password));
+    } catch (error) {
+      next(error);
+    }
   });
 
   userRouter.post("/signup", async (req, res, next) => {
-    console.log(req.body);
     try {
       const { username, email, password } = signupDto.parse(req.body);
       handleExpress(res, () =>
@@ -62,7 +65,7 @@ export const makeUserRouter = (
     async (req, res, next) => {
       try {
         const user = req.user;
-        handleExpress(res, () => userService.getMyInfo(user.id));
+        handleExpress(res, () => userService.getUserInfo(user.id));
       } catch (error) {
         next(error);
       }

@@ -2,7 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
   PrimaryColumn,
+  ResumeToken,
   UpdateDateColumn,
 } from "typeorm";
 import { UserId } from "../model/user-id";
@@ -11,10 +16,14 @@ import { HashedPassword, Password } from "../model/password";
 import { Email } from "../model/email";
 import { NameString } from "../model/name";
 import { ResetTokenEntity } from "./resetToken.entity";
+import { PostEntity } from "../../post/entity/post.entity";
+import { LikeEntity } from "../../post/entity/like.entity";
+import { BookmarkEntity } from "../../post/entity/bookmark.entity";
 
 @Entity("users")
 export class UserEntity {
   @PrimaryColumn("uuid")
+  @Index()
   id!: UserId;
 
   @Column({ nullable: true })
@@ -42,6 +51,25 @@ export class UserEntity {
     nullable: true,
   })
   avatarName!: string;
+
+  @OneToMany(() => PostEntity, (PostEntity) => PostEntity.user, {
+    onDelete: "CASCADE",
+  })
+  posts!: PostEntity[];
+
+  @OneToMany(() => LikeEntity, (LikeEntity) => LikeEntity.user, {
+    eager: false,
+  })
+  likes!: LikeEntity[];
+
+  @OneToMany(() => BookmarkEntity, (bookmarkEntity) => bookmarkEntity.user, {
+    eager: false,
+  })
+  bookmarks!: BookmarkEntity[];
+
+  @OneToOne(() => ResetTokenEntity, { nullable: true })
+  @JoinColumn()
+  resetToken!: ResetTokenEntity;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: number;
