@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { PostService } from "../modules/post/post.service";
-import { authMiddleWare } from "./middlewares/auth.middleware";
 import { UserService } from "../modules/user/user.service";
 import { addPostDto, editPostDto } from "../modules/post/dto/post.dto";
 import { handleExpress } from "../utility/handle-express";
@@ -18,7 +17,6 @@ export const makePostRouter = (
   postRouter.post("/add", upload.uploadPostImages(), (req, res, next) => {
     try {
       const addPostData = addPostDto.parse({ ...req.body, files: req.files });
-
       handleExpress(res, async () =>
         postService.addPost({ ...addPostData }, req.user.id)
       );
@@ -36,7 +34,7 @@ export const makePostRouter = (
     }
   });
 
-  postRouter.patch("/edit", (req, res, next) => {
+  postRouter.patch("/edit", upload.uploadPostImages(), (req, res, next) => {
     try {
       const editPostData = editPostDto.parse(req.body);
       handleExpress(res, async () =>
@@ -95,7 +93,7 @@ export const makePostRouter = (
     }
   });
 
-  postRouter.get("/user/me", (req, res, next) => {
+  postRouter.get("/me", (req, res, next) => {
     try {
       handleExpress(res, async () => postService.getMyPosts(req.user.id));
     } catch (error) {
@@ -106,7 +104,9 @@ export const makePostRouter = (
   postRouter.get("/tags/:tagValue", (req, res, next) => {
     try {
       const tagValue = zodTagString.parse(req.params.tagValue);
-      handleExpress(res, async () => postService.getTagAllPosts(tagValue));
+      handleExpress(res, async () =>
+        postService.getTagAllPosts(req.user.id, tagValue)
+      );
     } catch (error) {
       next(error);
     }
