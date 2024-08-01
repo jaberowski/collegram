@@ -14,7 +14,7 @@ export interface AddPostData {
   fileNames: string[];
 }
 
-export interface Post {
+export interface PostDomain {
   id: PostId;
   title: PostTitle;
   description: PostDescription;
@@ -22,11 +22,29 @@ export interface Post {
   userId: UserId;
   createdAt: number;
   updatedAt: number;
+  fileNames: string[];
+  likesCount: number;
+  bookmarksCount: number;
+}
+
+export interface PostDetail extends Omit<PostDomain, "fileNames"> {
   fileUrls: string[];
   haveLiked: boolean;
-  likesCount: number;
   haveBookmarked: boolean;
-  bookmarksCount: number;
+}
+
+export interface PostCardBasic {
+  id: PostDetail["id"];
+  userId: PostDetail["userId"];
+  fileUrls: PostDetail["fileUrls"];
+  tags: Tag[];
+}
+
+export interface PostCardWithInteractions extends PostCardBasic {
+  haveLiked: PostDetail["haveLiked"];
+  likesCount: PostDetail["likesCount"];
+  haveBookmarked: PostDetail["haveBookmarked"];
+  bookmarksCount: PostDetail["bookmarksCount"];
 }
 
 export type PostAccessLevel = "NONE" | "ALL_POSTS";

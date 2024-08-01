@@ -1,6 +1,6 @@
 import { DataSource, EntityManager, Repository, Transaction } from "typeorm";
 import { PostEntity } from "./entity/post.entity";
-import { AddPostData, Post } from "./model/post";
+import { AddPostData, PostDomain } from "./model/post";
 import { PostId } from "./model/postId";
 import { UserId } from "../user/model/user-id";
 import { v4 } from "uuid";
@@ -12,11 +12,11 @@ import { LikeEntity } from "./entity/like.entity";
 import { BookmarkEntity } from "./entity/bookmark.entity";
 
 export interface IPostRepository {
-  savePost(data: AddPostData): Promise<PostEntity>;
-  editPost(data: EditPostInput): Promise<PostEntity>;
+  savePost(data: AddPostData): Promise<PostDomain>;
+  editPost(data: EditPostInput): Promise<PostDomain>;
   deletPost(postId: PostId): Promise<void>;
-  getUsersPosts(userId: UserId): Promise<PostEntity[]>;
-  findPost(postId: PostId): Promise<PostEntity | null>;
+  getUsersPosts(userId: UserId): Promise<PostDomain[]>;
+  findPost(postId: PostId): Promise<PostDomain | null>;
   getTagWithPosts(tagValue: TagString): Promise<TagEntity | null>;
   addLikeOnPost(
     postId: PostId,
@@ -66,21 +66,21 @@ export class PostRepository implements IPostRepository {
     return tag;
   }
 
-  async findPost(postId: PostId): Promise<PostEntity | null> {
+  async findPost(postId: PostId): Promise<PostDomain | null> {
     return await this.postsRepo.findOne({
       where: { id: postId },
       relations: { tags: true },
     });
   }
 
-  getUsersPosts(userId: UserId): Promise<PostEntity[]> {
+  getUsersPosts(userId: UserId): Promise<PostDomain[]> {
     return this.postsRepo.find({
       where: { userId },
       relations: { tags: true },
     });
   }
 
-  async editPost(data: EditPostInput): Promise<PostEntity> {
+  async editPost(data: EditPostInput): Promise<PostDomain> {
     const tags = data.tags ? await this.getTagsToAdd(data.tags) : undefined;
     const postToEdit = { ...data, tags };
     return this.postsRepo.save(postToEdit);
@@ -91,7 +91,7 @@ export class PostRepository implements IPostRepository {
     return;
   }
 
-  async savePost(data: AddPostData): Promise<PostEntity> {
+  async savePost(data: AddPostData): Promise<PostDomain> {
     const tagsToAdd = await this.getTagsToAdd(data.tags);
     return await this.postsRepo.save({
       id: v4(),

@@ -8,7 +8,13 @@ import { UserId } from "../user/model/user-id";
 import { UserService } from "../user/user.service";
 import { UserRelationService } from "../userRelations/userRelation.service";
 import { AddPostInput, EditPostInput } from "./dto/post.dto";
-import { Post, PostAccessLevel } from "./model/post";
+import {
+  PostAccessLevel,
+  PostCardBasic,
+  PostCardWithInteractions,
+  PostDetail,
+  PostDomain,
+} from "./model/post";
 import { PostId } from "./model/postId";
 import { TagString } from "./model/tag";
 import { IPostRepository } from "./post.repository";
@@ -20,46 +26,43 @@ export class PostService {
     private userService: UserService
   ) {}
 
-  async addPost(postData: AddPostInput, userId: UserId): Promise<Post> {
+  async addPost(postData: AddPostInput, myUserId: UserId): Promise<PostDetail> {
     await Promise.all(postData.fileNames.map(savePostImage));
-    const postEntity = await this.postRepo.savePost({ ...postData, userId });
-
-    return {
-      ...postEntity,
-      fileUrls: postEntity.fileNames.map(generatePostImageUrl),
-      haveLiked: false,
-      haveBookmarked: false,
-    };
+    const post = await this.postRepo.savePost({
+      ...postData,
+      userId: myUserId,
+    });
+    return this.postMapper(post, myUserId).toPostDetail();
   }
 
   async deletePost(postId: PostId) {
     return this.postRepo.deletPost(postId);
   }
 
-  async editPost(postData: EditPostInput, myUserId: UserId) {
+  async editPost(
+    postData: EditPostInput,
+    myUserId: UserId
+  ): Promise<NotFoundError | ForbiddenError | PostDetail> {
     const post = await this.getPost(postData.id, myUserId);
 
     if (post instanceof NotFoundError) return post;
     if (post instanceof ForbiddenError || post.userId !== myUserId)
       return new ForbiddenError("you cant edit this post");
-    const editedPostEntity = await this.postRepo.editPost(postData);
-    return {
-      ...editedPostEntity,
-      haveLiked: await this.haveILikedPost(myUserId, postData.id),
-    };
+    const editedPost = await this.postRepo.editPost(postData);
+    return this.postMapper(editedPost, myUserId).toPostDetail();
   }
 
   private getUserPostAccessLevel = async (
     myUserId: UserId,
-    userId: UserId
+    TargetUserId: UserId
   ): Promise<PostAccessLevel | NotFoundError> => {
-    const isPrivate = await this.userService.isPrivateUser(userId);
+    const isPrivate = await this.userService.isPrivateUser(TargetUserId);
     const hasFollow = await this.userRelationService.hasFollow(
       myUserId,
-      userId
+      TargetUserId
     );
 
-    if (myUserId === userId) return "ALL_POSTS";
+    if (myUserId === TargetUserId) return "ALL_POSTS";
     if (isPrivate === false || hasFollow) return "ALL_POSTS";
     else if (isPrivate instanceof NotFoundError) return isPrivate;
     else return "NONE";
@@ -83,65 +86,43 @@ export class PostService {
 
   getUserPosts = async (
     myUserId: UserId,
-    userId: UserId
-  ): Promise<Post[] | NotFoundError> => {
-    const accessLevel = await this.getUserPostAccessLevel(myUserId, userId);
+    TargetUserId: UserId
+  ): Promise<PostCardWithInteractions[] | NotFoundError> => {
+    const accessLevel = await this.getUserPostAccessLevel(
+      myUserId,
+      TargetUserId
+    );
 
     if (accessLevel instanceof NotFoundError) return accessLevel;
 
     if (accessLevel === "NONE")
       return new ForbiddenError("you cant see this user posts");
     else {
-      const databaseResult = await this.postRepo.getUsersPosts(userId);
-      const userPosts = await Promise.all(
-        databaseResult.map(async (post) => {
-          return {
-            ...post,
-
-            haveLiked:
-              (await this.haveILikedPost(myUserId, post.id)) === "LIKED"
-                ? true
-                : false,
-            haveBookmarked:
-              (await this.haveIBookmarkedPost(myUserId, post.id)) ===
-              "BOOKMARKED"
-                ? true
-                : false,
-            fileUrls: post.fileNames.map(generatePostImageUrl),
-          };
-        })
+      const resultPosts = await this.postRepo.getUsersPosts(TargetUserId);
+      return await Promise.all(
+        resultPosts.map((post) =>
+          this.postMapper(post, myUserId).toPostCardWithInteractions()
+        )
       );
-      return userPosts;
     }
   };
 
-  getMyPosts = async (userId: UserId): Promise<Post[]> => {
-    const result = await this.postRepo.getUsersPosts(userId);
+  getMyPosts = async (
+    myUserId: UserId
+  ): Promise<PostCardWithInteractions[]> => {
+    const result = await this.postRepo.getUsersPosts(myUserId);
 
-    const posts = await Promise.all(
-      result.map(async (postEntity) => {
-        return {
-          ...postEntity,
-          fileUrls: postEntity.fileNames.map(generatePostImageUrl),
-          haveLiked:
-            (await this.haveILikedPost(userId, postEntity.id)) === "LIKED"
-              ? true
-              : false,
-          haveBookmarked:
-            (await this.haveIBookmarkedPost(userId, postEntity.id)) ===
-            "BOOKMARKED"
-              ? true
-              : false,
-        };
-      })
+    return await Promise.all(
+      result.map(async (post) =>
+        this.postMapper(post, myUserId).toPostCardWithInteractions()
+      )
     );
-    return posts;
   };
 
   async getPost(
     postId: PostId,
     myUserId: UserId
-  ): Promise<Post | ForbiddenError | NotFoundError> {
+  ): Promise<PostDetail | ForbiddenError | NotFoundError> {
     const post = await this.postRepo.findPost(postId);
 
     if (!post) return new NotFoundError("post does not exist");
@@ -154,28 +135,24 @@ export class PostService {
     if (postAccessLevel instanceof NotFoundError) return postAccessLevel;
 
     if (postAccessLevel === "ALL_POSTS")
-      return {
-        ...post,
-        haveLiked:
-          (await this.haveILikedPost(myUserId, postId)) === "LIKED"
-            ? true
-            : false,
-        haveBookmarked:
-          (await this.haveIBookmarkedPost(myUserId, post.id)) === "BOOKMARKED"
-            ? true
-            : false,
-        fileUrls: post.fileNames.map(generatePostImageUrl),
-      };
+      return this.postMapper(post, myUserId).toPostDetail();
     else return new ForbiddenError("cant access post");
   }
 
-  async getTagAllPosts(tagValue: TagString): Promise<Post[] | NotFoundError> {
+  async getTagAllPosts(
+    myUserId: UserId,
+    tagValue: TagString
+  ): Promise<PostCardBasic[] | NotFoundError> {
     const tag = await this.postRepo.getTagWithPosts(tagValue);
     if (!tag) return new NotFoundError("no such a tag");
-    else return tag.posts;
+    return Promise.all(
+      tag.posts.map(async (post) => {
+        return this.postMapper(post, myUserId).toPostCardBasic();
+      })
+    );
   }
 
-  async haveILikedPost(
+  private async haveILikedPost(
     myUserId: UserId,
     postId: PostId
   ): Promise<"LIKED" | "NO_LIKE"> {
@@ -201,7 +178,7 @@ export class PostService {
     }
   }
 
-  async haveIBookmarkedPost(
+  private async haveIBookmarkedPost(
     myUserId: UserId,
     postId: PostId
   ): Promise<"BOOKMARKED" | "NO_BOOKMARK"> {
@@ -232,5 +209,52 @@ export class PostService {
       );
       return "BOOKMARK_ADDED";
     }
+  }
+
+  async getPostInteractions(postId: PostId, myUserId: UserId) {
+    return {
+      haveLiked:
+        (await this.haveILikedPost(myUserId, postId)) === "LIKED"
+          ? true
+          : false,
+      haveBookmarked:
+        (await this.haveIBookmarkedPost(myUserId, postId)) === "BOOKMARKED"
+          ? true
+          : false,
+    };
+  }
+
+  private postMapper(post: PostDomain, myUserId: UserId) {
+    const { fileNames, ...postWithOutFileNames } = post;
+    const postWithImages = {
+      ...postWithOutFileNames,
+      fileUrls: fileNames.map(generatePostImageUrl),
+    };
+
+    return {
+      toPostDetail: async (): Promise<PostDetail> => {
+        return {
+          ...postWithImages,
+          ...(await this.getPostInteractions(post.id, myUserId)),
+        };
+      },
+      toPostCardBasic: async (): Promise<PostCardBasic> => {
+        const { id, fileUrls, tags, userId } = postWithImages;
+        return { id, fileUrls, tags, userId };
+      },
+      toPostCardWithInteractions:
+        async (): Promise<PostCardWithInteractions> => {
+          const { id, fileUrls, tags, userId } = postWithImages;
+          return {
+            id,
+            fileUrls,
+            tags,
+            userId,
+            bookmarksCount: postWithImages.bookmarksCount,
+            likesCount: postWithImages.likesCount,
+            ...(await this.getPostInteractions(postWithImages.id, myUserId)),
+          };
+        },
+    };
   }
 }
