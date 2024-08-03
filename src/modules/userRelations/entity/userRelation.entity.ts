@@ -6,26 +6,27 @@ import {
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from "typeorm";
 import { UserId } from "../../user/model/user-id";
 import { UUID } from "../../../data/UUID";
-import { UserRelationStatus } from "../model/userRelation";
+import {
+  UserRelationStatus,
+  UserRelationStatusRecord,
+} from "../model/userRelation";
 import { UserEntity } from "../../user/entity/user.entity";
 
 @Entity()
 export class UserRelationEntity {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column()
+  @PrimaryColumn()
   userId!: UserId;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn()
   user!: UserEntity;
 
-  @Column()
+  @PrimaryColumn()
   targetUserId!: UserId;
 
   @ManyToOne(() => UserEntity)
@@ -33,7 +34,7 @@ export class UserRelationEntity {
   targetUser!: UserEntity;
 
   @Column({ nullable: false })
-  status!: UserRelationStatus;
+  status!: UserRelationStatusRecord;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: number;
