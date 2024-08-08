@@ -71,6 +71,12 @@ export class UserEntity {
   @JoinColumn()
   resetToken!: ResetTokenEntity;
 
+  @Column({ default: 0 })
+  followingsCount!: number;
+
+  @Column({ default: 0 })
+  followersCount!: number;
+
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: number;
 

@@ -95,7 +95,8 @@ export class UserRelationService {
     if (relation.status !== "NOTHING_PUBLIC") {
       return new BadRequestError("");
     }
-    return this.userRelationRepo.saveFollowRelation(relation);
+    await this.userRelationRepo.saveFollowRelation(relation);
+    await this.userService.increamentFollowStats(relation);
   }
 
   async sendFollowRequest(
@@ -138,6 +139,7 @@ export class UserRelationService {
       return new BadRequestError("");
     }
     await this.userRelationRepo.saveFollowRelation(otherWayRelation);
+    await this.userService.increamentFollowStats(otherWayRelation);
   }
 
   async rejectFollowRequest(
@@ -164,7 +166,7 @@ export class UserRelationService {
       relation.status === "NOTHING_PRIVATE" ||
       relation.status === "NOTHING_PUBLIC"
     ) {
-      return;
+      return new BadRequestError("");
     }
 
     if (
@@ -180,6 +182,7 @@ export class UserRelationService {
       relation.userId,
       relation.targetUserId
     );
+    await this.userService.decreamentFollowStats(relation);
     return;
   }
 
@@ -221,8 +224,15 @@ export class UserRelationService {
     const { relation, otherWayRelation } = bothWayRelation;
 
     if (isNonBlockRelation(relation) && isNonBlockRelation(otherWayRelation)) {
-      this.userRelationRepo.handleBlock(relation, otherWayRelation);
-      return;
+      await this.userRelationRepo.handleBlock(relation, otherWayRelation);
+
+      if (relation.status === "CLOSEFRIEND" || relation.status === "FOLLOWED")
+        await this.userService.decreamentFollowStats(relation);
+      if (
+        otherWayRelation.status === "CLOSEFRIEND" ||
+        otherWayRelation.status === "FOLLOWED"
+      )
+        await this.userService.decreamentFollowStats(otherWayRelation);
     }
 
     if (

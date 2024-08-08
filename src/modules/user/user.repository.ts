@@ -17,6 +17,14 @@ import { Username } from "./model/username";
 import { v4 } from "uuid";
 import { UserEntity } from "./entity/user.entity";
 import { ResetTokenEntity } from "./entity/resetToken.entity";
+import {
+  CloseFriendUserRelation,
+  FollowedUserRelation,
+  NothingPrivateUserRelation,
+  NothingPublicRelation,
+  RequestedUserRelation,
+  UserRelation,
+} from "../userRelations/model/userRelation";
 
 export interface IUserRepository {
   findById: (id: UserId) => Promise<User | null>;
@@ -38,6 +46,8 @@ export interface IUserRepository {
   checkAvailableUsername(username: Username): Promise<CheckedUserName>;
   checkAvailableEmail(email: Email): Promise<CheckedEmail>;
   updateUserInfo(changeInfo: CheckedChangeInfoUser): Promise<void>;
+  increamentFollowStats(relation: UserRelation): Promise<void>;
+  decreamentFollowStats(relation: UserRelation): Promise<void>;
 }
 
 interface ResetTokenObject {
@@ -53,6 +63,7 @@ export class UserRepository implements IUserRepository {
     this.userRepo = dataSource.getRepository(UserEntity);
     this.resetTokenRepo = dataSource.getRepository(ResetTokenEntity);
   }
+
   async resetPassword(
     userId: UserId,
     newHashedPassword: HashedPassword
@@ -94,15 +105,14 @@ export class UserRepository implements IUserRepository {
     }
   }
   async addUser(createUser: CreateUser): Promise<User> {
-    const user: User = {
+    const user = {
       username: createUser.checkedUsername.data,
       email: createUser.checkedEmail.data,
       id: v4() as UserId,
       isPrivate: false,
       hashedPassword: createUser.hashedPassword,
     };
-    this.userRepo.save(user);
-    return user;
+    return this.userRepo.save(user);
   }
   async findById(id: UserId): Promise<User | null> {
     return this.userRepo.findOneBy({ id });
@@ -133,6 +143,33 @@ export class UserRepository implements IUserRepository {
     await this.userRepo.save({
       ...changeInfo,
       email: changeInfo.email?.data,
+    });
+  }
+
+  async increamentFollowStats(
+    relation:
+      | NothingPrivateUserRelation
+      | NothingPublicRelation
+      | RequestedUserRelation
+  ): Promise<void> {
+    const { userId, targetUserId } = relation;
+
+    this.dataSource.transaction(async (entityManager) => {
+      const userRepo = entityManager.getRepository(UserEntity);
+      await userRepo.increment({ id: userId }, "followingsCount", 1);
+
+      await userRepo.increment({ id: targetUserId }, "followersCount", 1);
+    });
+  }
+  async decreamentFollowStats(
+    relation: FollowedUserRelation | CloseFriendUserRelation
+  ): Promise<void> {
+    const { userId, targetUserId } = relation;
+
+    this.dataSource.transaction(async (entityManager) => {
+      const userRepo = entityManager.getRepository(UserEntity);
+      await userRepo.decrement({ id: userId }, "followingsCount", 1);
+      await userRepo.decrement({ id: targetUserId }, "followersCount", 1);
     });
   }
 }
