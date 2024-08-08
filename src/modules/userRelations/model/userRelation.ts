@@ -60,5 +60,56 @@ export type NonBlockUserRelaiton =
   | FollowedUserRelation
   | CloseFriendUserRelation;
 
+export type EitherTypeBlockUserRelation =
+  | BlockedUserRelation
+  | IsBlockedUserRelation;
+
 export type UserRelationStatus = UserRelation["status"];
 export type UserRelationStatusRecord = UserRelationRecord["status"];
+
+export function isNonBlockRelation(
+  relation: UserRelation
+): relation is NonBlockUserRelaiton {
+  return relation.status !== "BLOCKED" && relation.status !== "ISBLOCKED";
+}
+
+export function isBlockRelation(
+  relation: UserRelation
+): relation is EitherTypeBlockUserRelation {
+  return relation.status === "BLOCKED" || relation.status === "ISBLOCKED";
+}
+
+export interface TwoWayRelation {
+  relation: UserRelation;
+  otherWayRelation: UserRelation;
+}
+
+export interface BothNonBlockRelation extends TwoWayRelation {
+  relation: NonBlockUserRelaiton;
+  otherWayRelation: NonBlockUserRelaiton;
+}
+
+export interface Blocked_IsBlockedTwoWayRelation extends TwoWayRelation {
+  relation: BlockedUserRelation;
+  otherWayRelation: IsBlockedUserRelation;
+}
+
+export interface IsBlocked_BlockedTwoWayRelation extends TwoWayRelation {
+  relation: IsBlockedUserRelation;
+  otherWayRelation: BlockedUserRelation;
+}
+
+export interface DoubleIsBlockedTwoWayRelation extends TwoWayRelation {
+  relation: IsBlockedUserRelation;
+  otherWayRelation: IsBlockedUserRelation;
+}
+
+export type ValidTwoWayRelaiton =
+  | Blocked_IsBlockedTwoWayRelation
+  | IsBlocked_BlockedTwoWayRelation
+  | DoubleIsBlockedTwoWayRelation
+  | BothNonBlockRelation;
+export type InvalidTwoWayRelation = Exclude<
+  TwoWayRelation,
+  ValidTwoWayRelaiton
+>;

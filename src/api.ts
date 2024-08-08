@@ -23,7 +23,8 @@ export const makeApp = (dataSource: DataSource) => {
   const userRelationRepo = new UserRelationREpository(dataSource);
   const userRelationService = new UserRelationService(
     userRelationRepo,
-    userRepo
+    userRepo,
+    userService
   );
 
   const postRepo = new PostRepository(dataSource);
