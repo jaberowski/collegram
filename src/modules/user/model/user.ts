@@ -15,6 +15,8 @@ export interface User {
   lastname?: NameString;
   isPrivate: boolean;
   bio?: string;
+  followingsCount: number;
+  followersCount: number;
 }
 
 export interface FEUser extends Omit<User, "avatarName"> {

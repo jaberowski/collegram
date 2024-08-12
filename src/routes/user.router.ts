@@ -72,6 +72,22 @@ export const makeUserRouter = (
     }
   );
 
+  userRouter.get(
+    "/other-user-info",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      const { targetUserId } = userRelationDto.parse(req.body);
+      try {
+        const user = req.user;
+        handleExpress(res, () =>
+          UserRelationService.getUserInfo(user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
   userRouter.post(
     "/edit",
     authMiddleWare(userService),
@@ -79,6 +95,7 @@ export const makeUserRouter = (
     async (req, res, next) => {
       try {
         const user = req.user;
+        console.log(req.body);
         const data = changeInfo.parse(req.body);
         handleExpress(res, () =>
           userService.changeMyInfo(user, {
@@ -86,6 +103,21 @@ export const makeUserRouter = (
             id: user.id,
             ...(req.file ? { avatarName: req.file.filename } : {}),
           })
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.get(
+    "/get-relation",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.getRelationStatus(req.user.id, targetUserId)
         );
       } catch (error) {
         next(error);
@@ -116,6 +148,126 @@ export const makeUserRouter = (
         const { targetUserId } = userRelationDto.parse(req.body);
         handleExpress(res, () =>
           UserRelationService.unfollow(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/follow-request",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.sendFollowRequest(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/accept-request",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.acceptFollowRequest(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/reject-request",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.rejectFollowRequest(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/cancel-request",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.cancelFollowRequest(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/add-closefriend",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.addCloseFriend(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/kick-closefriend",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.kickCloseFriend(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/block",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.block(req.user.id, targetUserId)
+        );
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  userRouter.post(
+    "/unblock",
+    authMiddleWare(userService),
+    async (req, res, next) => {
+      try {
+        const { targetUserId } = userRelationDto.parse(req.body);
+        handleExpress(res, () =>
+          UserRelationService.unBlock(req.user.id, targetUserId)
         );
       } catch (error) {
         next(error);

@@ -21,6 +21,14 @@ import {
 import { makeToken } from "../token/token.helper";
 import bcrypt from "bcrypt";
 import { generateAvatarUrl, saveAvatarImage } from "../../utility/imageHelper";
+import {
+  CloseFriendUserRelation,
+  FollowedUserRelation,
+  NothingPrivateUserRelation,
+  NothingPublicRelation,
+  RequestedUserRelation,
+  UserRelation,
+} from "../userRelations/model/userRelation";
 
 export class UserService {
   constructor(private userRepo: IUserRepository) {}
@@ -163,12 +171,18 @@ export class UserService {
     return await this.userRepo.updateUserInfo({ ...data });
   }
 
-  async isPrivateUser(userId: UserId): Promise<boolean | NotFoundError> {
-    const user = await this.getUserInfo(userId);
+  async increamentFollowStats(
+    relation:
+      | NothingPrivateUserRelation
+      | NothingPublicRelation
+      | RequestedUserRelation
+  ): Promise<void> {
+    this.userRepo.increamentFollowStats(relation);
+  }
 
-    if (user instanceof NotFoundError) {
-      return user;
-    }
-    return user.isPrivate;
+  async decreamentFollowStats(
+    relation: FollowedUserRelation | CloseFriendUserRelation
+  ): Promise<void> {
+    this.userRepo.decreamentFollowStats(relation);
   }
 }
